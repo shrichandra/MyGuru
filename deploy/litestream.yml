@@ -1,0 +1,9 @@
+dbs:
+  - path: ${DATABASE_PATH}
+    replicas:
+      - type: gcs
+        bucket: ${LITESTREAM_BUCKET}
+        path: myguru.db
+        sync-interval: 1s
+        snapshot-interval: 24h
+        retention: 168h
