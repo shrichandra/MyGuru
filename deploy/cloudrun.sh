@@ -28,7 +28,7 @@ gcloud iam service-accounts describe "${SA}" >/dev/null 2>&1 || \
 gcloud storage buckets add-iam-policy-binding "gs://${BUCKET}" --member="serviceAccount:${SA}" --role="roles/storage.objectAdmin" >/dev/null
 
 # Secrets: create each once with `printf '%s' VALUE | gcloud secrets create NAME --data-file=-`
-SECRETS=(SESSION_SECRET ALLOWED_EMAIL GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET ANTHROPIC_API_KEY CRON_SECRET HEALTH_SYNC_TOKEN VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY)
+SECRETS=(SESSION_SECRET APP_PASSCODE ALLOWED_EMAIL GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET ANTHROPIC_API_KEY CRON_SECRET HEALTH_SYNC_TOKEN VAPID_PUBLIC_KEY VAPID_PRIVATE_KEY)
 SET_SECRETS=""
 for s in "${SECRETS[@]}"; do
   if gcloud secrets describe "$s" >/dev/null 2>&1; then
