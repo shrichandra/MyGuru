@@ -32,13 +32,17 @@ SECRETS=(SESSION_SECRET APP_PASSCODE ALLOWED_EMAIL GOOGLE_CLIENT_ID GOOGLE_CLIEN
 SET_SECRETS=""
 for s in "${SECRETS[@]}"; do
   # A secret only counts once it has an enabled version; an empty one would fail the deploy.
-  if [ -n "$(gcloud secrets versions list "$s" --filter=state=ENABLED --limit=1 --format='value(name)' 2>/dev/null)" ]; then
+  if gcloud secrets versions access latest --secret="$s" >/dev/null 2>&1; then
     gcloud secrets add-iam-policy-binding "$s" --member="serviceAccount:${SA}" --role="roles/secretmanager.secretAccessor" >/dev/null
     SET_SECRETS+="${s}=${s}:latest,"
   else
     echo "note: secret $s not found, skipping (create it to enable that feature)"
   fi
 done
+case ",${SET_SECRETS}" in
+  *,SESSION_SECRET=*) ;;
+  *) echo "error: secret SESSION_SECRET is missing. Create the secrets first (deploy-steps.md step 2)." >&2; exit 1 ;;
+esac
 
 gcloud builds submit --tag "${IMAGE}" .
 
@@ -51,7 +55,7 @@ gcloud run deploy "${SERVICE}" \
   --cpu 1 --memory 512Mi --no-cpu-throttling \
   --allow-unauthenticated \
   --set-env-vars "LITESTREAM_BUCKET=${BUCKET},APP_TIMEZONE=${APP_TIMEZONE:-Asia/Kolkata},NEXT_PUBLIC_CURRENCY=${CURRENCY:-INR}${APP_URL:+,APP_URL=${APP_URL}}" \
-  ${SET_SECRETS:+--set-secrets "${SET_SECRETS%,}"}
+  --set-secrets "${SET_SECRETS%,}"
 
 echo "Deployed: $(gcloud run services describe "${SERVICE}" --region "${REGION}" --format='value(status.url)')"
 echo "Next: set APP_URL to that URL (re-run with APP_URL=...), add <APP_URL>/api/auth/google/callback as an OAuth redirect URI, then run deploy/scheduler.sh"
