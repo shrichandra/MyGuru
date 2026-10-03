@@ -1,6 +1,9 @@
 # MyGuru: Next.js standalone server + SQLite, replicated to Cloud Storage by Litestream.
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
+# better-sqlite3 compiles from source when no prebuilt binary matches this Node.
+RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
+ && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
 
