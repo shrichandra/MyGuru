@@ -24,7 +24,7 @@ review, nightly housekeeping. Quiet hours (default 21:30-06:00) mute everything 
 briefing, alerts and the review.
 
 Everything works without any keys: the Guru falls back to rule-based briefings, task breakdowns,
-template drafts and a rule-based quick-log parser. Add `ANTHROPIC_API_KEY` to switch on the AI.
+template drafts and a rule-based quick-log parser. The deployed app runs without the AI; for local use, `ANTHROPIC_API_KEY` in `.env` switches it on.
 
 ## Run locally
 
@@ -67,7 +67,6 @@ Schema changes: edit `src/lib/db/schema.ts`, then `npm run db:generate` and comm
    printf '%s' '<client id>'                | gcloud secrets create GOOGLE_CLIENT_ID --data-file=-
    printf '%s' '<client secret>'            | gcloud secrets create GOOGLE_CLIENT_SECRET --data-file=-
    printf '%s' "$(openssl rand -hex 24)"    | gcloud secrets create CRON_SECRET --data-file=-
-   printf '%s' '<anthropic key>'            | gcloud secrets create ANTHROPIC_API_KEY --data-file=-
    npx web-push generate-vapid-keys   # then create VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY
    ```
 3. `deploy/cloudrun.sh` (builds the image, creates the bucket, deploys one always-on instance).
